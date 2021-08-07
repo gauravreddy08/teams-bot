@@ -428,19 +428,20 @@ def join_meeting(meeting):
         active_correlation_id = uuid.group(0)
     else:
         active_correlation_id = ""
+
     # turn camera off
     video_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-video']>div>button")
     video_is_on = video_btn.get_attribute("aria-pressed")
     if video_is_on == "true":
         video_btn.click()
-        print("Video off")
+        print("Video disabled")
 
     # turn mic off
     audio_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-mute']>div>button")
     audio_is_on = audio_btn.get_attribute("aria-pressed")
     if audio_is_on == "true":
         audio_btn.click()
-        print("Audio off")
+        print("Microphone off")
 
     if 'random_delay' in config and config['random_delay']:
         delay = random.randrange(10, 31, 1)
@@ -496,14 +497,16 @@ def get_meeting_members():
             continue
 
     time.sleep(2)
+
+    # open the meeting member side page
     try:
         browser.execute_script("document.getElementById('roster-button').click()")
     except exceptions.JavascriptException:
         print("Failed to open meeting member page")
         return None
 
-    participants_elem = wait_until_found("calling-roster-section[section-key='participantsInCall'] .roster-list-title", 3, print_error=False)
-    attendees_elem = wait_until_found("calling-roster-section[section-key='attendeesInMeeting'] .roster-list-title", 3, print_error=False)
+    participants_elem = wait_until_found("calling-roster-section[section-key='participantsInCall'] .roster-list-title", 2, print_error=False)
+    attendees_elem = wait_until_found("calling-roster-section[section-key='attendeesInMeeting'] .roster-list-title", 2, print_error=False)
 
     if participants_elem is None and attendees_elem is None:
         print("Failed to get meeting members")
@@ -518,6 +521,12 @@ def get_meeting_members():
         attendees = [int(s) for s in attendees_elem.get_attribute("aria-label").split() if s.isdigit()]
     else:
         attendees = [0]
+
+    # close the meeting member side page, this only makes a difference if pause_search is true
+    try:
+        browser.execute_script("document.getElementById('roster-button').click()")
+    except exceptions.JavascriptException:
+        print("Failed to close meeting member page, this might result in an error on next search")
 
     return sum(participants + attendees)
 
@@ -546,35 +555,31 @@ def hangup():
 
 
 # Handles logic for leave number threshold and percent threshold. Return True for did hangup, or False for did not.
-def handle_leave_threshold(current_members, total_members):
-    print("Current: "+str(current_members))
-    print("Total: "+str(total_members))
+def handle_leave_threshold(current_meeting_members, total_meeting_members):
+    print(f"Current members in meeting: {current_meeting_members}")
+    print(f"Total members of the meeting: {total_meeting_members}")
     leave_number = config["leave_threshold_number"]
     leave_percentage = config["leave_threshold_percentage"]
 
-    if leave_number == "" and leave_percentage == "":
-        if 0 < current_members < 3:
-            print("Last attendee in meeting")
-            discord_notification("Left last in meeting", f"{current_meeting.title}")
+    if leave_number is not None and leave_number != "" and int(leave_number) > 0:
+        if current_meeting_members < int(leave_number):
+            print("Leave threshold (absolute) triggered")
+            discord_notification("Left meeting, threshold triggered", f"{current_meeting.title}")
             hangup()
             return True
-    if leave_number != "":
-        if float(leave_number) <= 0:
-            print(leave_number+" is not a valid value for threshold. Threshold number must be greater than 1.")
-            return False
-        if current_members < float(leave_number):
-            print("Last attendee in meeting")
+
+    if leave_percentage is not None and leave_percentage != "" and 0 < int(leave_percentage) <= 100:
+        if (current_meeting_members / total_meeting_members) * 100 < int(leave_percentage):
+            print("Leave threshold (percentage) triggered")
+            discord_notification("Left meeting, threshold triggered", f"{current_meeting.title}")
             hangup()
             return True
-    else:
-        if 0 < float(leave_percentage) <= 150:
-            if (current_members/total_members)*100 < float(leave_percentage):
-                print("Last attendee in meeting")
-                hangup()
-                return True
-        else:
-            print(leave_percentage+" is not a valid value for threshold. Threshold percent must be greater than 0 and less than 100.")
-            return False
+
+    if 0 < current_meeting_members < 3:
+        print("Last attendee in meeting")
+        discord_notification("Left meeting, last member", f"{current_meeting.title}")
+        hangup()
+        return True
 
     return False
 
