@@ -17,7 +17,7 @@
   "leave_threshold_percentage": "",
   "pause_search": true,
 
-  "headless" : false,
+  "headless" : true,
   "mute_audio": true,
   "chrome_type": "google-chrome",
 
