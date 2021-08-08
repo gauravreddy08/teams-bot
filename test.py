@@ -193,7 +193,7 @@ def main():
     time.sleep(10)
 
     while True:
-        current = datetime.today().weekday()
+        current = datetime.now().astimezone(IST).weekday()
 
         if current == 6:
             now = datetime.now(IST)
