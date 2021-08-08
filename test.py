@@ -1,30 +1,5 @@
 import time
 from datetime import datetime
-
-days = [
-{"09:05":"A Slot | ONL00234 | STS3005 | Fall sem",
-"14:05":"ONL00171-E+TE-Mobile Application Development"},
-
-{"09:05":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
-"11:05":"A Slot | ONL00234 | STS3005 | Fall sem",
-"12:05":"D SLot SoftComputing Fall 21-22",
-"16:05":"CSE4027-Data Analytics (Slot-F)"},
-
-{"09:05":"CSE3011 C",
-"11:05":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
-"14:05":"A Slot | ONL00234 | STS3005 | Fall sem"},
-
-{"09:05":"D SLot SoftComputing Fall 21-22",
-"14:05":"ONL00171-E+TE-Mobile Application Development"},
-
-{"09:05":"ONL00171-E+TE-Mobile Application Development",
-"11:05":"D SLot SoftComputing Fall 21-22",
-"12:05":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
-"16:05":"CSE3011 C"},
-
-{"09:05":"CSE4027-Data Analytics (Slot-F)",
-"14:05":"CSE3011 C"}]
-
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
@@ -32,17 +7,40 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-
-
 from discord import Webhook, RequestsWebhookAdapter, Embed
+
+days = [
+{"09:00":"A Slot | ONL00234 | STS3005 | Fall sem",
+"14:00":"ONL00171-E+TE-Mobile Application Development"},
+
+{"09:00":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+"11:00":"A Slot | ONL00234 | STS3005 | Fall sem",
+"12:00":"D SLot SoftComputing Fall 21-22",
+"16:00":"CSE4027-Data Analytics (Slot-F)"},
+
+{"09:00":"CSE3011 C",
+"11:00":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+"14:00":"A Slot | ONL00234 | STS3005 | Fall sem"},
+
+{"09:00":"D SLot SoftComputing Fall 21-22",
+"14:00":"ONL00171-E+TE-Mobile Application Development"},
+
+{"09:00":"ONL00171-E+TE-Mobile Application Development",
+"11:00":"D SLot SoftComputing Fall 21-22",
+"12:00":"686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+"16:00":"CSE3011 C"},
+
+{"09:00":"CSE4027-Data Analytics (Slot-F)",
+"14:00":"CSE3011 C"}
+]
 
 def discord_notification(title, description=""):
     discord_webhook_url = "https://discord.com/api/webhooks/873089242669146112/2m1lWVI0kPYkavAOX7fF4ZSjB_0edGW5_iPcDbbdUoEdYz2E9-lODNlMpja2hZL-r6oC"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=0x0011FF)
-    embed.set_author(name="Ms-Teams-Auto-Joiner-Bot")
-    embed.set_footer(text=f"\nTime: [{datetime.now():%Y:%m:%d-%H:%M:%S}]\nlogin-id: {'gaurav.19bce7137@gmail.com'}")
+    embed.set_author(name="")
+    embed.set_footer(text=f"\n{datetime.now():%m/%d  %H:%M}")
 
     try:
         webhook.send(embed=embed)
@@ -52,15 +50,27 @@ def discord_notification(title, description=""):
 def join(name):
     discord_notification("Attempting to join", name)
 
+    i = 0
     while browser.find_element_by_link_text(name) is None:
-        time.sleep(4)
+        time.sleep(3)
+        if i==20:
+            discord_notification(f"Error ")
+            break
     class1 = browser.find_element_by_link_text(name)
     class1.click()
     time.sleep(6)
+    i=0
+    while browser.find_element_by_xpath("//*[text()='Join']") is None:
+        time.sleep(60)
+        discord_notification(f"{name} not started yet")
+        if i==10:
+            discord_notification(f"{name} NA ")
+            break
+
     class1 = browser.find_element_by_xpath("//*[text()='Join']")
     class1.click()
 
-    time.sleep(6)
+    time.sleep(12)
 
     video_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-video']>div>button")
     video_is_on = video_btn.get_attribute("aria-pressed")
@@ -68,7 +78,7 @@ def join(name):
         video_btn.click()
         print("Video disabled")
 
-    time.sleep(4)
+    time.sleep(3)
 
     # turn mic off
     audio_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-mute']>div>button")
@@ -77,20 +87,20 @@ def join(name):
         audio_btn.click()
         print("Microphone off")
 
-    while browser.find_element_by_xpath("//*[text()='Join now']") is None:
-        time.sleep(60)
-        print(f"Class not started yet : {name}")
+    time.sleep(2)
+
     class1 = browser.find_element_by_xpath("//*[text()='Join now']")
     class1.click()
     print(f'Joined {name}')
     discord_notification("Joined meeting ", name)
 
-    time.sleep(2700)
-    discord_notification("Left meeting ", name)
+    time.sleep(3000)
 
     browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741").click()
     hangup_btn = browser.find_element_by_css_selector("#hangup-button > ng-include > svg")
     hangup_btn.click()
+
+    discord_notification("Left meeting ", name)
     print("exited meeting")
 
 def wait_until_found(sel, timeout, print_error=True):
@@ -169,34 +179,40 @@ def init_browser():
 
 init_browser()
 browser.get("https://teams.microsoft.com")
+
 login()
-print("Waiting for correct page...", end='')
-
 print("\rFound page, do not click anything on the webpage from now on.")
-discord_notification("Teams Ready", "Opened teams page")
+discord_notification("Teams Ready")
 
-time.sleep(15)
+time.sleep(10)
 
 while True:
-    current = days[datetime.today().weekday()]
+    current = datetime.today().weekday()
+
+    if current==6:
+        now = datetime.now()
+        run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month, day=now.day + 1)
+        discord_notification("Happy Holiday, sleeping till", run_at)
+        time.sleep((run_at - now).total_seconds())
+
+    current=days[current]
+    discord_notification(current.values())
     print(current)
 
     for t, c in current.items():
         now = datetime.now()
         run_at = datetime.strptime(t, "%H:%M").replace(year=now.year, month=now.month, day=now.day)
-        discord_notification("Waiting for ", str((run_at - now).total_seconds()))
+
         discord_notification("Next Meet ", c)
-        if (run_at - now).total_seconds()>0: continue
+        if (run_at - now).total_seconds()<0: continue
+
+        discord_notification("Waiting for ", f"{int(str((run_at - now).total_seconds())/60)}mins")
         time.sleep((run_at - now).total_seconds())
+
         join(c)
         time.sleep(5)
 
     now = datetime.now()
-    run_at = datetime.strptime("08:55", "%H:%M").replace(year=now.year, month=now.month, day=now.day + 1)
-    discord_notification("Done today, Sleeping ", run_at)
+    run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month, day=now.day + 1)
+    discord_notification("Done today, sleeping for", f"{int((run_at-now).total_seconds()//60//60)}hr")
     time.sleep((run_at - now).total_seconds())
-
-
-
-
-
