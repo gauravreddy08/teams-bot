@@ -45,7 +45,7 @@ def discord_notification(title, description=""):
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=0x0011FF)
-    embed.set_author(name=f"{os.environ['COMPUTERNAME']}")
+    embed.set_author(name="")
     embed.set_footer(text=f"\n{datetime.now(IST):%m/%d  %H:%M}")
 
     try:
