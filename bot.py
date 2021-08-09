@@ -17,7 +17,7 @@ week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sun
 
 days = [
     {"09:00": "A Slot | ONL00234 | STS3005 | Fall sem",
-     "14:00": "ONL00171-E+TE-Mobile Application Development"},
+     "14:00": "ONL171-E+TE-Mobile Application Development"},
 
     {"09:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
      "11:00": "A Slot | ONL00234 | STS3005 | Fall sem",
@@ -42,7 +42,7 @@ days = [
 
 
 def discord_notification(title, description=""):
-    discord_webhook_url = "https://discord.com/api/webhooks/873089242669146112/2m1lWVI0kPYkavAOX7fF4ZSjB_0edGW5_iPcDbbdUoEdYz2E9-lODNlMpja2hZL-r6oC"
+    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=0x0011FF)
@@ -56,28 +56,28 @@ def discord_notification(title, description=""):
 
 def join(name):
     ## Finding Team
-    i = 0
-    while browser.find_element_by_link_text(name) is None:
-        time.sleep(3)
-        i += 1
-        if i == 20:
-            discord_notification("Error!", f"{name} not found")
-            exit()
-    class1 = browser.find_element_by_link_text(name)
-    class1.click()
-    time.sleep(6)
+    try:
+        element_present = EC.visibility_of_element_located((By.LINK_TEXT, name))
+        WebDriverWait(browser, 600).until(element_present)
+
+        browser.find_element_by_link_text(name).click()
+    except exceptions.TimeoutException:
+        print(f"Timeout waiting for element : {name}")
+        discord_notification("Error!", f"{name} not found")
+        exit()
+
+    time.sleep(4)
 
     # Finding Join Button : Meeting
-    i = 0
-    while browser.find_element_by_xpath("//*[text()='Join']") is None:
-        time.sleep(60)
-        discord_notification(f"{name} not started yet")
-        i += 1
-        if i == 10:
-            discord_notification(f"{name} NA")
-            return
-    class1 = browser.find_element_by_xpath("//*[text()='Join']")
-    class1.click()
+    try:
+        element_present = EC.visibility_of_element_located((By.XPATH, "//*[text()='Join']"))
+        WebDriverWait(browser, 600).until(element_present)
+
+        browser.find_element_by_xpath("//*[text()='Join']").click()
+    except exceptions.TimeoutException:
+        print(f"No class today : {name}")
+        discord_notification("Class NA", f"{name}")
+        return None
 
     time.sleep(12)
 
@@ -104,14 +104,19 @@ def join(name):
 
     time.sleep(2800)
 
-    teams = browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
-    if teams is not None:
+    try:
+        teams = browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
         teams.click()
+    except exceptions.NoSuchElementException:
+        print("teams not found")
+
     time.sleep(2)
 
-    hangup_btn = browser.find_element_by_css_selector("#hangup-button > ng-include > svg")
-    if hangup_btn is not None:
+    try:
+        hangup_btn = browser.find_element_by_css_selector("#hangup-button > ng-include > svg")
         hangup_btn.click()
+    except exceptions.NoSuchElementException:
+        print("hanup not found")
 
     discord_notification("Left meeting ", name)
     print("exited meeting")
@@ -131,8 +136,8 @@ def wait_until_found(sel, timeout, print_error=True):
 
 
 def login():
-    email = '******************************************'
-    password = '***************************************'
+    email = ''
+    password = ''
     if email != "" and password != "":
         login_email = wait_until_found("input[type='email']", 30)
         if login_email is not None:
@@ -230,11 +235,13 @@ def main():
         run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month,
                                                              day=now.day + 1).astimezone(IST)
         discord_notification("Done today, sleeping for",
-                             f"{int((run_at - now).total_seconds() // 360)}hr")
+                             f"{int((run_at - now).total_seconds() // 3600)}hr")
         time.sleep((run_at - now).total_seconds())
 
 try:
     main()
+except Exception as e:
+    discord_notification("Error", f"{e}")
 finally:
     if browser is not None:
         browser.quit()
