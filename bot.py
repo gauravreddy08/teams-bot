@@ -42,7 +42,7 @@ days = [
 
 
 def discord_notification(title, description=""):
-    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
+    discord_webhook_url = ""
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=0x0011FF)
@@ -136,8 +136,8 @@ def wait_until_found(sel, timeout, print_error=True):
 
 
 def login():
-    email = 'gaurav.19bce7137@vitap.ac.in'
-    password = 'Iamironman3k'
+    email = ''
+    password = ''
     if email != "" and password != "":
         login_email = wait_until_found("input[type='email']", 30)
         if login_email is not None:
