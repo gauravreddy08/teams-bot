@@ -17,9 +17,9 @@ week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sun
 
 days = [
     {"09:00": "A Slot | ONL00234 | STS3005 | Fall sem",
-     "14:00": "ONL171-E+TE-Mobile Application Development"},
+     "14:00": "ONL00171-E+TE-Mobile Application Development"},
 
-    {"09:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+    {"09:16": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
      "11:00": "A Slot | ONL00234 | STS3005 | Fall sem",
      "12:00": "D SLot SoftComputing Fall 21-22",
      "16:00": "CSE4027-Data Analytics (Slot-F)"},
@@ -136,8 +136,8 @@ def wait_until_found(sel, timeout, print_error=True):
 
 
 def login():
-    email = ''
-    password = ''
+    email = 'gaurav.19bce7137@vitap.ac.in'
+    password = 'Iamironman3k'
     if email != "" and password != "":
         login_email = wait_until_found("input[type='email']", 30)
         if login_email is not None:
@@ -199,8 +199,6 @@ def main():
 
     login()
     print("\rFound page, do not click anything on the webpage from now on.")
-    discord_notification("Teams Ready")
-
     time.sleep(10)
 
     while True:
@@ -213,7 +211,7 @@ def main():
             time.sleep((run_at - now).total_seconds())
         wday = week[current]
         current = days[current]
-        discord_notification(f"{wday} Time Table", str('\n'.join(map(str, current.items()))))
+        discord_notification(f"{wday} Time Table", '\n'.join(f"{k} : {v}" for k,v in current.items()))
         print(current)
 
         for t, c in current.items():
