@@ -9,78 +9,80 @@ from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from discord import Webhook, RequestsWebhookAdapter, Embed
 
-import pytz
-
-IST = pytz.timezone('Asia/Kolkata')
-
 week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 days = [
-    {"09:00": "A Slot | ONL00234 | STS3005 | Fall sem",
+    {"09:00": "A Slot | ONL00234 | STS3007 | Fall sem",
      "14:00": "ONL00171-E+TE-Mobile Application Development"},
 
-    {"09:16": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
-     "11:00": "A Slot | ONL00234 | STS3005 | Fall sem",
+    {"09:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+     "11:00": "A Slot | ONL00234 | STS3007 | Fall sem",
      "12:00": "D SLot SoftComputing Fall 21-22",
+     "15:00": "Team_4_CP",
      "16:00": "CSE4027-Data Analytics (Slot-F)"},
 
     {"09:00": "CSE3011 C",
      "11:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
-     "14:00": "A Slot | ONL00234 | STS3005 | Fall sem"},
+     "14:00": "A Slot | ONL00234 | STS3007 | Fall sem"},
 
     {"09:00": "D SLot SoftComputing Fall 21-22",
+     "11:00": "CSE3011 C",
+     "15:00": "Team_4_CP",
      "14:00": "ONL00171-E+TE-Mobile Application Development"},
 
     {"09:00": "ONL00171-E+TE-Mobile Application Development",
      "11:00": "D SLot SoftComputing Fall 21-22",
-     "12:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+     "14:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
      "16:00": "CSE3011 C"},
 
     {"09:00": "CSE4027-Data Analytics (Slot-F)",
-     "14:00": "CSE3011 C"}
+     "15:00": "Team_4_CP",
+     "16:00": "Team_4_CP"}
 ]
 
-
-def discord_notification(title, description=""):
-    discord_webhook_url = ""
+def discord_notification(title, description="", color=0x0011FF):
+    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
-    embed = Embed(title=f"{title}", description=f"{description}", colour=0x0011FF)
-    embed.set_footer(text=f"\n{datetime.now(IST):%d/%m/%Y at %H:%M}")
+    embed = Embed(title=f"{title}", description=f"{description}", colour=color)
+    embed.set_footer(text=f"\n{datetime.now():%d/%m/%Y at %H:%M}")
 
     try:
         webhook.send(embed=embed)
     except:
         print("Failed to send discord notification")
 
-
-def join(name):
-    ## Finding Team
+def find_team(name):
     try:
-        element_present = EC.visibility_of_element_located((By.LINK_TEXT, name))
-        WebDriverWait(browser, 600).until(element_present)
+        element_present = EC.visibility_of_element_located((By.PARTIAL_LINK_TEXT, name))
+        WebDriverWait(browser, 10).until(element_present)
 
-        browser.find_element_by_link_text(name).click()
+        current_class = browser.find_element_by_partial_link_text(name)
+        current_class.click()
     except exceptions.TimeoutException:
         print(f"Timeout waiting for element : {name}")
-        discord_notification("Error!", f"{name} not found")
+        discord_notification("Error!", f"{name} not found", color=0xFF0000)
         exit()
 
-    time.sleep(4)
+def join_meet(name):
+    i=0
+    while True:
+        if i>=10:
+            print(f"No class today : {name}")
+            discord_notification("Class NA", f"{name}", color=0xFF0000)
+            return 0
+        e = browser.find_elements_by_xpath("//*[text()='Join']")
+        if len(e)==0:
+            i+=1
+            time.sleep(50)
+            browser.refresh()
+            time.sleep(10)
+            find_team(name)
+        else:
+            browser.find_element_by_xpath("//*[text()='Join']").click()
+            break
 
-    # Finding Join Button : Meeting
-    try:
-        element_present = EC.visibility_of_element_located((By.XPATH, "//*[text()='Join']"))
-        WebDriverWait(browser, 600).until(element_present)
-
-        browser.find_element_by_xpath("//*[text()='Join']").click()
-    except exceptions.TimeoutException:
-        print(f"No class today : {name}")
-        discord_notification("Class NA", f"{name}")
-        return None
-
-    time.sleep(12)
-
+def muteAV():
     # Muting Audio and Video
     video_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-video']>div>button")
     video_is_on = video_btn.get_attribute("aria-pressed")
@@ -96,11 +98,23 @@ def join(name):
         print("Microphone off")
     time.sleep(2)
 
+def join(name):
+
+    find_team(name)
+    time.sleep(5)
+
+    x = join_meet(name)
+
+    if x==0:
+        return None
+
+    muteAV()
+
     # Joining Meeting
     class1 = browser.find_element_by_xpath("//*[text()='Join now']")
     class1.click()
     print(f'Joined {name}')
-    discord_notification("Joined meeting", name)
+    discord_notification("Joined meeting", name,  color= 0x00FF00)
 
     time.sleep(2800)
 
@@ -116,9 +130,9 @@ def join(name):
         hangup_btn = browser.find_element_by_css_selector("#hangup-button > ng-include > svg")
         hangup_btn.click()
     except exceptions.NoSuchElementException:
-        print("hanup not found")
+        print("hangup not found")
 
-    discord_notification("Left meeting ", name)
+    discord_notification("Left meeting ", name,  color= 0x00FF00)
     print("exited meeting")
 
 
@@ -131,13 +145,13 @@ def wait_until_found(sel, timeout, print_error=True):
     except exceptions.TimeoutException:
         if print_error:
             print(f"Timeout waiting for element: {sel}")
-            discord_notification("Timeout error", sel)
+            discord_notification("Timeout error", sel, color=0xFF0000)
         return None
 
 
 def login():
-    email = ''
-    password = ''
+    email = 'gaurav.19bce7137@vitap.ac.in'
+    password = 'Iamironman3k'
     if email != "" and password != "":
         login_email = wait_until_found("input[type='email']", 30)
         if login_email is not None:
@@ -160,10 +174,10 @@ def login():
         keep_logged_in = wait_until_found("input[id='idBtn_Back']", 5)
         if keep_logged_in is not None:
             keep_logged_in.click()
-            discord_notification("Logged in successfully", "")
+            discord_notification("Logged in successfully",  color= 0x00FF00)
         else:
             print("Login Unsuccessful, recheck entries in config.json")
-            discord_notification("Login Unsuccessful", " recheck entries in config.json")
+            discord_notification("Login Unsuccessful", " recheck entries in config.json", color=0xFF0000)
     time.sleep(10)
 
 
@@ -177,6 +191,7 @@ def init_browser():
     chrome_options.add_argument('--ignore-ssl-errors')
     chrome_options.add_argument('--use-fake-ui-for-media-stream')
     chrome_options.add_argument("--mute-audio")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_experimental_option('prefs', {
         'credentials_enable_service': False,
         'profile.default_content_setting_values.media_stream_mic': 1,
@@ -194,32 +209,35 @@ def init_browser():
 
 
 def main():
-    init_browser()
-    browser.get("https://teams.microsoft.com")
-
-    login()
-    print("\rFound page, do not click anything on the webpage from now on.")
-    time.sleep(10)
-
     while True:
+        init_browser()
+        browser.get("https://teams.microsoft.com")
+
+        login()
+        print("\rFound page, do not click anything on the webpage from now on.")
+        time.sleep(10)
+
         current = datetime.today().weekday()
 
         if current == 6:
-            now = datetime.now(IST)
+            now = datetime.now()
             run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month, day=now.day + 1)
             discord_notification("Sunday, sleeping till", run_at)
+            browser.close()
             time.sleep((run_at - now).total_seconds())
+            continue
+
         wday = week[current]
         current = days[current]
-        discord_notification(f"{wday} Time Table", '\n'.join(f"{k} : {v}" for k,v in current.items()))
+        discord_notification(f"{wday} Time Table", '\n'.join(f"{k} : {v}" for k,v in current.items()), color=0xFFFFFF)
         print(current)
 
         for t, c in current.items():
-            now = datetime.now(IST)
-            run_at = datetime.strptime(t, "%H:%M").replace(year=now.year, month=now.month, day=now.day).astimezone(IST)
+            now = datetime.now()
+            run_at = datetime.strptime(t, "%H:%M").replace(year=now.year, month=now.month, day=now.day)
 
             if (run_at - now).total_seconds() < 0:
-                discord_notification("Skipped class", c)
+                discord_notification("Skipped class", c, color=0xFFFFFF)
                 continue
 
             discord_notification(f"{c} at {t}",
@@ -229,18 +247,20 @@ def main():
             join(c)
             time.sleep(5)
 
-        now = datetime.now(IST)
+        now = datetime.now()
         run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month,
-                                                             day=now.day + 1).astimezone(IST)
+                                                             day=now.day + 1)
         discord_notification("Done today, sleeping for",
                              f"{int((run_at - now).total_seconds() // 3600)}hr")
-        time.sleep((run_at - now).total_seconds())
+        browser.close()
 
+        time.sleep((run_at - now).total_seconds())
 try:
     main()
 except Exception as e:
-    discord_notification("Error", f"{e}")
+    discord_notification("Error", f"{e}", color=0xFF0000)
+    print(e)
 finally:
     if browser is not None:
         browser.quit()
-    discord_notification("Browser closed", "Thank you!")
+    discord_notification("Browser closed", "Thank you!",  color= 0x00FF00)
