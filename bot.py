@@ -15,14 +15,14 @@ days = [
     {"09:00": "A Slot | ONL00234 | STS3007 | Fall sem",
      "14:00": "ONL00171-E+TE-Mobile Application Development"},
 
-    {"09:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+    {"09:00": "686_slot_B_FallSem_CSE3008: Introduction to Machine Learning",
      "11:00": "A Slot | ONL00234 | STS3007 | Fall sem",
      "12:00": "D SLot SoftComputing Fall 21-22",
      "15:00": "Team_4_CP",
      "16:00": "CSE4027-Data Analytics (Slot-F)"},
 
     {"09:00": "CSE3011 C",
-     "11:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+     "11:00": "686_slot_B_FallSem_CSE3008: Introduction to Machine Learning",
      "14:00": "A Slot | ONL00234 | STS3007 | Fall sem"},
 
     {"09:00": "D SLot SoftComputing Fall 21-22",
@@ -32,7 +32,7 @@ days = [
 
     {"09:00": "ONL00171-E+TE-Mobile Application Development",
      "11:00": "D SLot SoftComputing Fall 21-22",
-     "14:00": "686_slotB_FallSem_CSE3008: Introduction to Machine Learning",
+     "14:00": "686_slot_B_FallSem_CSE3008: Introduction to Machine Learning",
      "16:00": "CSE3011 C"},
 
     {"09:00": "CSE4027-Data Analytics (Slot-F)",
