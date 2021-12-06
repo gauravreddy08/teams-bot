@@ -41,7 +41,7 @@ days = [
 ]
 
 def discord_notification(title, description="", color=0x0011FF):
-    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
+    discord_webhook_url = "https://discord.com/api/webhooks/917272424226099292/10MXJVLYIrviC9oT9iJ3CFwgJQKSYSX2HsZHs6jfgq2fv_kMMy2o8EoBnN-xVZF9u0SW"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=color)
