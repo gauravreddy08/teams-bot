@@ -41,7 +41,7 @@ days = [
 ]
 
 def discord_notification(title, description="", color=0x0011FF):
-    discord_webhook_url = "https://discord.com/api/webhooks/917272424226099292/10MXJVLYIrviC9oT9iJ3CFwgJQKSYSX2HsZHs6jfgq2fv_kMMy2o8EoBnN-xVZF9u0SW"
+    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=color)
@@ -67,7 +67,7 @@ def find_team(name):
 def join_meet(name):
     i=0
     while True:
-        if i>=10:
+        if i>=15:
             print(f"No class today : {name}")
             discord_notification("Class NA", f"{name}", color=0xFF0000)
             return 0
@@ -89,14 +89,14 @@ def muteAV():
     if video_is_on == "true":
         video_btn.click()
         print("Video disabled")
-    time.sleep(60)
+    time.sleep(10)
 
     audio_btn = browser.find_element_by_css_selector("toggle-button[data-tid='toggle-mute']>div>button")
     audio_is_on = audio_btn.get_attribute("aria-pressed")
     if audio_is_on == "true":
         audio_btn.click()
         print("Microphone off")
-    time.sleep(60)
+    time.sleep(10)
 
 def join(name):
 
@@ -110,14 +110,14 @@ def join(name):
 
     muteAV()
 
-    time.sleep(60)
+    time.sleep(10)
     # Joining Meeting
     class1 = browser.find_element_by_xpath("//*[text()='Join now']")
     class1.click()
     print(f'Joined {name}')
     discord_notification("Joined meeting", name,  color= 0x00FF00)
 
-    time.sleep(2800)
+    time.sleep(2500)
 
     try:
         teams = browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
