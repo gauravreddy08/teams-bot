@@ -12,36 +12,31 @@ from discord import Webhook, RequestsWebhookAdapter, Embed
 week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 days = [
-    {"09:00": "A Slot | ONL00234 | STS3007 | Fall sem",
-     "14:00": "ONL00171-E+TE-Mobile Application Development"},
+    {},
 
-    {"09:00": "686_slot_B_FallSem2021_CSE3008: Introduction to Machine Learning",
-     "11:00": "A Slot | ONL00234 | STS3007 | Fall sem",
-     "12:00": "D SLot SoftComputing Fall 21-22",
-     "15:00": "Team_4_CP",
-     "16:00": "CSE4027-Data Analytics (Slot-F)"},
+     {"10:00": "CSE4029(F1+TF1 Slot)-ADA",
+     "11:00": "267--Web Technologies--E1+TE1",
+     "12:00": "Cloud_computing_D1+TD1_slot"},
 
-    {"09:00": "CSE3011 C",
-     "11:00": "686_slot_B_FallSem2021_CSE3008: Introduction to Machine Learning",
-     "14:00": "A Slot | ONL00234 | STS3007 | Fall sem"},
+     {"09:00": "CSE1005: Software Engineering B1+TB1",
+     "11:00": "CSE4029(F1+TF1 Slot)-ADA",
+     "12:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1"},
 
-    {"09:00": "D SLot SoftComputing Fall 21-22",
-     "11:00": "CSE3011 C",
-     "15:00": "Team_4_CP",
-     "14:00": "ONL00171-E+TE-Mobile Application Development"},
+     {"12:00": "267--Web Technologies--E1+TE1"},
 
-    {"09:00": "ONL00171-E+TE-Mobile Application Development",
-     "11:00": "D SLot SoftComputing Fall 21-22",
-     "14:00": "686_slot_B_FallSem2021_CSE3008: Introduction to Machine Learning",
-     "16:00": "CSE3011 C"},
+     {"09:00": "Cloud_computing_D1+TD1_slot",
+     "10:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1",
+     "11:00": "CSE1005: Software Engineering B1+TB1"},
 
-    {"09:00": "CSE4027-Data Analytics (Slot-F)",
-     "15:00": "Team_4_CP",
-     "16:00": "Team_4_CP"}
+     {"09:00": "267--Web Technologies--E1+TE1",
+     "10:00": "Cloud_computing_D1+TD1_slot",
+     "11:00": "CSE1005: Software Engineering B1+TB1"},
+
+     {}    
 ]
 
 def discord_notification(title, description="", color=0x0011FF):
-    discord_webhook_url = "https://discord.com/api/webhooks/874217953447542825/dX-2fAB7x4aEwHHHFcC40pytKWWWAtNjGPm456EOueZxb23Wai9xPi2BRjnQeJS_LA6O"
+    discord_webhook_url = "https://discord.com/api/webhooks/933379605178503198/BKO1UghTmq9MglXNzMYQkaT_bPNAKFZ1U5stBi3meBne6eVDYGh7Coax-frEv1ep-5xi"
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=color)
@@ -67,7 +62,7 @@ def find_team(name):
 def join_meet(name):
     i=0
     while True:
-        if i>=15:
+        if i>=18:
             print(f"No class today : {name}")
             discord_notification("Class NA", f"{name}", color=0xFF0000)
             return 0
@@ -117,7 +112,7 @@ def join(name):
     print(f'Joined {name}')
     discord_notification("Joined meeting", name,  color= 0x00FF00)
 
-    time.sleep(2500)
+    time.sleep(2800)
 
     try:
         teams = browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
@@ -220,10 +215,10 @@ def main():
 
         current = datetime.today().weekday()
 
-        if current == 6:
+        if current == 6 or current == 0:
             now = datetime.now()
             run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month, day=now.day + 1)
-            discord_notification("Sunday, sleeping till", run_at)
+            discord_notification(f"{week[current]} is Holiday, sleeping till", run_at)
             browser.close()
             time.sleep((run_at - now).total_seconds())
             continue
@@ -252,7 +247,7 @@ def main():
         run_at = datetime.strptime("08:56", "%H:%M").replace(year=now.year, month=now.month,
                                                              day=now.day + 1)
         discord_notification("Done today, sleeping for",
-                             f"{int((run_at - now).total_seconds() // 3600)}hr")
+                             f"{int((run_at - now).total_seconds() // 3600)}hrs")
         browser.close()
 
         time.sleep((run_at - now).total_seconds())
