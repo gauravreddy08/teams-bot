@@ -14,29 +14,34 @@ week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sun
 days = [
     {},
 
-     {"10:00": "CSE4029(F1+TF1 Slot)-ADA",
-     "11:00": "267--Web Technologies--E1+TE1",
-     "12:00": "Cloud_computing_D1+TD1_slot"},
+     {"09:00": "MOOC -E F E- A1",
+      "10:00": "CSE4029(F1+TF1 Slot)-ADA",
+      "11:00": "267--Web Technologies--E1+TE1",
+      "12:00": "Cloud_computing_D1+TD1_slot"},
 
      {"09:00": "CSE1005: Software Engineering B1+TB1",
-     "11:00": "CSE4029(F1+TF1 Slot)-ADA",
-     "12:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1"},
+      "10:00": "MOOC -E F E- A1",
+      "11:00": "CSE4029(F1+TF1 Slot)-ADA",
+      "12:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1"},
 
-     {"12:00": "267--Web Technologies--E1+TE1"},
+     {"10:00": "G1+TG1 | STS4006",
+      "12:00": "267--Web Technologies--E1+TE1"},
 
      {"09:00": "Cloud_computing_D1+TD1_slot",
-     "10:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1",
-     "11:00": "CSE1005: Software Engineering B1+TB1"},
+      "10:00": "HUM 1002 PERSONAL FINANCE FOR ENGINEERS C1",
+      "11:00": "CSE1005: Software Engineering B1+TB1",
+      "12:00": "G1+TG1 | STS4006"},
 
      {"09:00": "267--Web Technologies--E1+TE1",
-     "10:00": "Cloud_computing_D1+TD1_slot",
-     "11:00": "CSE1005: Software Engineering B1+TB1"},
+      "10:00": "Cloud_computing_D1+TD1_slot",
+      "11:00": "G1+TG1 | STS4006",
+      "12:00": "CSE1005: Software Engineering B1+TB1"},
 
-     {}    
+     {}
 ]
 
 def discord_notification(title, description="", color=0x0011FF):
-    discord_webhook_url = "https://discord.com/api/webhooks/933379605178503198/BKO1UghTmq9MglXNzMYQkaT_bPNAKFZ1U5stBi3meBne6eVDYGh7Coax-frEv1ep-5xi"
+    discord_webhook_url = ""
     webhook = Webhook.from_url(discord_webhook_url, adapter=RequestsWebhookAdapter())
 
     embed = Embed(title=f"{title}", description=f"{description}", colour=color)
@@ -111,8 +116,11 @@ def join(name):
     class1.click()
     print(f'Joined {name}')
     discord_notification("Joined meeting", name,  color= 0x00FF00)
+    
 
-    time.sleep(2800)
+    now = datetime.now()
+    class_end = now.replace(minute=48)
+    time.sleep((class_end-now).total_seconds())
 
     try:
         teams = browser.find_element_by_css_selector("#app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
@@ -146,8 +154,8 @@ def wait_until_found(sel, timeout, print_error=True):
 
 
 def login():
-    email = 'gaurav.19bce7137@vitap.ac.in'
-    password = 'Iamironman3k'
+    email = ''
+    password = ''
     if email != "" and password != "":
         login_email = wait_until_found("input[type='email']", 30)
         if login_email is not None:
